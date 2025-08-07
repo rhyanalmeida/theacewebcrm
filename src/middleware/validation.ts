@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { Request, Response, NextFunction } from 'express';
-import { createApiError } from './errorHandler';
+import { createApiError, CustomError } from './errorHandler';
 import { UserRole, LeadStatus, DealStage, ProjectStatus } from '../types';
 
 /**
@@ -64,8 +64,8 @@ export const validateParams = (schema: Joi.ObjectSchema) => {
 
 // Common validation schemas
 export const commonSchemas = {
-  // MongoDB ObjectId validation
-  objectId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).message('Invalid ID format'),
+  // UUID validation for Supabase
+  objectId: Joi.string().uuid().message('Invalid ID format'),
   
   // Pagination
   pagination: Joi.object({
@@ -80,8 +80,8 @@ export const commonSchemas = {
     search: Joi.string().trim().min(1).max(100),
     status: Joi.string(),
     role: Joi.string().valid(...Object.values(UserRole)),
-    owner: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),
-    createdBy: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),
+    owner: Joi.string().uuid(),
+    createdBy: Joi.string().uuid(),
     tags: Joi.string(),
     dateFrom: Joi.date().iso(),
     dateTo: Joi.date().iso().greater(Joi.ref('dateFrom'))

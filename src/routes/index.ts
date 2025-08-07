@@ -3,6 +3,12 @@ import authRoutes from './auth';
 import userRoutes from './users';
 import contactRoutes from './contacts';
 import leadRoutes from './leads';
+import companyRoutes from './companies';
+import dealRoutes from './deals';
+import projectRoutes from './projects';
+import fileRoutes from './files';
+import emailRoutes from './email';
+import analyticsRoutes from './analytics';
 import paymentRoutes from '../payments/routes';
 import paymentPortalRoutes from '../payments/routes/portal';
 import { logger } from '../config/logger';
@@ -13,11 +19,28 @@ import { logger } from '../config/logger';
 export const configureRoutes = (app: Application): void => {
   const apiRouter = Router();
 
+  // Health check
+  apiRouter.get('/health', (req, res) => {
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.0.0'
+    });
+  });
+
   // API routes
   apiRouter.use('/auth', authRoutes);
   apiRouter.use('/users', userRoutes);
   apiRouter.use('/contacts', contactRoutes);
   apiRouter.use('/leads', leadRoutes);
+  apiRouter.use('/companies', companyRoutes);
+  apiRouter.use('/deals', dealRoutes);
+  apiRouter.use('/projects', projectRoutes);
+  apiRouter.use('/files', fileRoutes);
+  apiRouter.use('/email', emailRoutes);
+  apiRouter.use('/analytics', analyticsRoutes);
   
   // Payment system routes
   apiRouter.use('/payments', paymentRoutes);
@@ -37,6 +60,9 @@ export const configureRoutes = (app: Application): void => {
         '/api/deals',
         '/api/companies',
         '/api/projects',
+        '/api/files',
+        '/api/email',
+        '/api/analytics',
         '/api/payments'
       ]
     });

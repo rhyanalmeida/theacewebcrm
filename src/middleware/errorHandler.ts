@@ -1,10 +1,39 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/logger';
 import { ApiResponse } from '../types';
-import config from '../config';
+import config from '../config/environment';
 
 /**
- * Custom error class for API errors
+ * Custom error class for API errors (primary)
+ */
+export class CustomError extends Error {
+  public readonly statusCode: number;
+  public readonly isOperational: boolean;
+  public readonly errors?: string[];
+
+  constructor(
+    message: string,
+    statusCode: number,
+    errors?: string[],
+    isOperational: boolean = true,
+    stack?: string
+  ) {
+    super(message);
+    
+    this.statusCode = statusCode;
+    this.isOperational = isOperational;
+    this.errors = errors;
+    
+    if (stack) {
+      this.stack = stack;
+    } else {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+}
+
+/**
+ * Legacy ApiError class for backward compatibility
  */
 export class ApiError extends Error {
   public readonly statusCode: number;
@@ -36,7 +65,7 @@ export class ApiError extends Error {
  * Global error handling middleware
  */
 export const errorHandler = (
-  err: Error | ApiError,
+  err: Error | CustomError | ApiError,
   req: Request,
   res: Response,
   next: NextFunction
@@ -56,7 +85,11 @@ export const errorHandler = (
   });
 
   // Handle different types of errors
-  if (err instanceof ApiError) {
+  if (err instanceof CustomError) {
+    statusCode = err.statusCode;
+    message = err.message;
+    errors = err.errors || [];
+  } else if (err instanceof ApiError) {
     statusCode = err.statusCode;
     message = err.message;
     errors = err.errors || [];
@@ -90,7 +123,7 @@ export const errorHandler = (
   };
 
   // Don't leak error details in production
-  if (config.nodeEnv === 'production' && !(err instanceof ApiError)) {
+  if (config.nodeEnv === 'production' && !(err instanceof CustomError) && !(err instanceof ApiError)) {
     errorResponse.message = 'Something went wrong';
     errorResponse.errors = undefined;
   }
@@ -125,6 +158,11 @@ export const asyncHandler = (fn: Function) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
+
+/**
+ * Catch async function wrapper - alias for asyncHandler
+ */
+export const catchAsync = asyncHandler;
 
 /**
  * Handle Mongoose validation errors
@@ -199,10 +237,12 @@ export const handleUncaughtException = () => {
 };
 
 export default {
+  CustomError,
   ApiError,
   errorHandler,
   notFoundHandler,
   asyncHandler,
+  catchAsync,
   createApiError,
   handleUncaughtException
 };

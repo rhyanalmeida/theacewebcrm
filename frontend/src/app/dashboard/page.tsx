@@ -1,203 +1,299 @@
 'use client';
 
-import React from 'react';
-import { StatsCard } from '@/components/dashboard/StatsCard';
-import { DashboardChart } from '@/components/dashboard/DashboardChart';
-import { 
-  UserGroupIcon, 
-  UserIcon, 
-  ChartBarIcon, 
-  FolderIcon,
+import React, { useEffect, useState } from 'react';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import {
+  UsersIcon,
+  UserPlusIcon,
   CurrencyDollarIcon,
-  TrendingUpIcon
+  FolderIcon,
+  TrendingUpIcon,
+  TrendingDownIcon,
+  ArrowUpIcon,
 } from '@heroicons/react/24/outline';
+import { useCrmStore } from '@/store/crmStore';
 
-// Mock data - replace with real API calls
-const stats = [
-  {
-    title: 'Total Contacts',
-    value: 2847,
-    icon: <UserIcon />,
-    change: { value: 12, type: 'increase' as const },
-  },
-  {
-    title: 'Active Leads',
-    value: 324,
-    icon: <UserGroupIcon />,
-    change: { value: 8, type: 'increase' as const },
-  },
-  {
-    title: 'Open Deals',
-    value: 156,
-    icon: <ChartBarIcon />,
-    change: { value: 3, type: 'decrease' as const },
-  },
-  {
-    title: 'Active Projects',
-    value: 42,
-    icon: <FolderIcon />,
-    change: { value: 15, type: 'increase' as const },
-  },
-  {
-    title: 'Revenue',
-    value: 485720,
-    icon: <CurrencyDollarIcon />,
-    format: 'currency' as const,
-    change: { value: 22, type: 'increase' as const },
-  },
-  {
-    title: 'Conversion Rate',
-    value: 24.5,
-    icon: <TrendingUpIcon />,
-    format: 'percentage' as const,
-    change: { value: 5, type: 'increase' as const },
-  },
-];
+// Sample data - in production this would come from API
+const statsData = {
+  totalContacts: 1245,
+  totalLeads: 89,
+  totalDeals: 45,
+  totalProjects: 12,
+  monthlyRevenue: 125400,
+  conversionRate: 23.5,
+  dealsValue: 450000,
+  activeProjects: 8,
+};
 
-const salesData = [
-  { name: 'Jan', value: 45000 },
-  { name: 'Feb', value: 52000 },
-  { name: 'Mar', value: 48000 },
-  { name: 'Apr', value: 61000 },
-  { name: 'May', value: 55000 },
-  { name: 'Jun', value: 67000 },
+const revenueData = [
+  { month: 'Jan', revenue: 85000 },
+  { month: 'Feb', revenue: 92000 },
+  { month: 'Mar', revenue: 78000 },
+  { month: 'Apr', revenue: 105000 },
+  { month: 'May', revenue: 118000 },
+  { month: 'Jun', revenue: 125400 },
 ];
 
 const leadSourceData = [
-  { name: 'Website', value: 35 },
-  { name: 'Social Media', value: 28 },
-  { name: 'Email Campaign', value: 20 },
-  { name: 'Referrals', value: 17 },
+  { name: 'Website', value: 35, color: '#3B82F6' },
+  { name: 'Referral', value: 25, color: '#10B981' },
+  { name: 'Social Media', value: 20, color: '#F59E0B' },
+  { name: 'Email', value: 15, color: '#EF4444' },
+  { name: 'Other', value: 5, color: '#6B7280' },
 ];
 
 const dealStageData = [
-  { name: 'Prospect', value: 45 },
-  { name: 'Qualified', value: 32 },
-  { name: 'Proposal', value: 28 },
-  { name: 'Negotiation', value: 18 },
-  { name: 'Closed Won', value: 12 },
+  { stage: 'Prospect', count: 12 },
+  { stage: 'Qualification', count: 8 },
+  { stage: 'Proposal', count: 15 },
+  { stage: 'Negotiation', count: 6 },
+  { stage: 'Closed Won', count: 4 },
+];
+
+const recentActivities = [
+  {
+    id: 1,
+    type: 'deal',
+    message: 'New deal "Enterprise Solution" created for $45,000',
+    time: '2 hours ago',
+    user: 'John Doe',
+  },
+  {
+    id: 2,
+    type: 'lead',
+    message: 'Lead "Sarah Johnson" converted to contact',
+    time: '4 hours ago',
+    user: 'Jane Smith',
+  },
+  {
+    id: 3,
+    type: 'contact',
+    message: 'Meeting scheduled with "Tech Corp" for next week',
+    time: '6 hours ago',
+    user: 'Mike Wilson',
+  },
+  {
+    id: 4,
+    type: 'project',
+    message: 'Project "CRM Integration" marked as completed',
+    time: '1 day ago',
+    user: 'Sarah Davis',
+  },
 ];
 
 export default function DashboardPage() {
+  const { stats, setStats, setStatsLoading } = useCrmStore();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading data
+    const loadDashboardData = async () => {
+      setStatsLoading(true);
+      
+      // In production, this would be an API call
+      setTimeout(() => {
+        setStats(statsData);
+        setStatsLoading(false);
+        setLoading(false);
+      }, 1000);
+    };
+
+    loadDashboardData();
+  }, [setStats, setStatsLoading]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const statCards = [
+    {
+      title: 'Total Contacts',
+      value: statsData.totalContacts.toLocaleString(),
+      icon: UsersIcon,
+      change: '+12%',
+      changeType: 'positive' as const,
+      color: 'blue',
+    },
+    {
+      title: 'Active Leads',
+      value: statsData.totalLeads.toLocaleString(),
+      icon: UserPlusIcon,
+      change: '+8%',
+      changeType: 'positive' as const,
+      color: 'green',
+    },
+    {
+      title: 'Deals Value',
+      value: `$${(statsData.dealsValue / 1000).toFixed(0)}K`,
+      icon: CurrencyDollarIcon,
+      change: '+23%',
+      changeType: 'positive' as const,
+      color: 'yellow',
+    },
+    {
+      title: 'Active Projects',
+      value: statsData.activeProjects.toLocaleString(),
+      icon: FolderIcon,
+      change: '-2%',
+      changeType: 'negative' as const,
+      color: 'purple',
+    },
+  ];
+
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Get an overview of your CRM performance and key metrics
-        </p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600">Welcome back! Here's what's happening with your CRM.</p>
+        </div>
+        <div className="text-sm text-gray-500">
+          Last updated: {new Date().toLocaleTimeString()}
+        </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {stats.map((stat, index) => (
-          <StatsCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            icon={stat.icon}
-            change={stat.change}
-            format={stat.format}
-          />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statCards.map((stat, index) => (
+          <Card key={index}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <div className="flex items-center mt-1">
+                    {stat.changeType === 'positive' ? (
+                      <TrendingUpIcon className="h-4 w-4 text-green-600 mr-1" />
+                    ) : (
+                      <TrendingDownIcon className="h-4 w-4 text-red-600 mr-1" />
+                    )}
+                    <span className={`text-sm ${stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
+                      {stat.change}
+                    </span>
+                    <span className="text-sm text-gray-500 ml-1">from last month</span>
+                  </div>
+                </div>
+                <div className={`p-3 rounded-lg bg-${stat.color}-100`}>
+                  <stat.icon className={`h-6 w-6 text-${stat.color}-600`} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <DashboardChart
-          title="Sales Revenue Trend"
-          data={salesData}
-          type="area"
-          color="#3B82F6"
-        />
-        
-        <DashboardChart
-          title="Lead Sources"
-          data={leadSourceData}
-          type="pie"
-        />
-        
-        <DashboardChart
-          title="Deal Pipeline"
-          data={dealStageData}
-          type="bar"
-          color="#10B981"
-        />
-        
-        <DashboardChart
-          title="Monthly Performance"
-          data={salesData}
-          type="line"
-          color="#8B5CF6"
-        />
-      </div>
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Revenue Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Monthly Revenue</span>
+              <Badge variant="success">+18.5%</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Revenue']} />
+                <Line type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
-      {/* Recent Activity */}
-      <div className="bg-white overflow-hidden shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Recent Activity
-          </h3>
-          <div className="mt-5">
-            <div className="flow-root">
-              <ul className="-mb-8">
-                {[
-                  {
-                    id: 1,
-                    content: 'New lead created: John Smith from TechCorp',
-                    time: '2 hours ago',
-                    type: 'lead',
-                  },
-                  {
-                    id: 2,
-                    content: 'Deal moved to negotiation stage: $45,000 deal with Acme Inc',
-                    time: '4 hours ago',
-                    type: 'deal',
-                  },
-                  {
-                    id: 3,
-                    content: 'Contact updated: Jane Doe contact information',
-                    time: '6 hours ago',
-                    type: 'contact',
-                  },
-                  {
-                    id: 4,
-                    content: 'Project completed: Website redesign for ClientCorp',
-                    time: '1 day ago',
-                    type: 'project',
-                  },
-                ].map((item, itemIdx) => (
-                  <li key={item.id}>
-                    <div className="relative pb-8">
-                      {itemIdx !== 3 ? (
-                        <span
-                          className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                      <div className="relative flex space-x-3">
-                        <div>
-                          <span className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
-                            <UserIcon className="w-5 h-5 text-white" aria-hidden="true" />
-                          </span>
-                        </div>
-                        <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                          <div>
-                            <p className="text-sm text-gray-500">{item.content}</p>
-                          </div>
-                          <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                            {item.time}
-                          </div>
-                        </div>
-                      </div>
+        {/* Lead Sources */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Lead Sources</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={leadSourceData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${value}%`}
+                >
+                  {leadSourceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Deal Pipeline */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Deal Pipeline</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dealStageData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="stage" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activities */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activities</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentActivities.map((activity) => (
+                <div key={activity.id} className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                      <ArrowUpIcon className="h-4 w-4 text-blue-600" />
                     </div>
-                  </li>
-                ))}
-              </ul>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900">{activity.message}</p>
+                    <p className="text-xs text-gray-500">
+                      {activity.time} • by {activity.user}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

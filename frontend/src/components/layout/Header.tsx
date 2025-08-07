@@ -12,8 +12,8 @@ import {
   Cog6ToothIcon,
   UserIcon,
 } from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/store/authStore';
-import { useNotificationStore } from '@/store/notificationStore';
+import { useAuthStore } from '@/store/authStoreSupabase';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { cn } from '@/utils/cn';
 
 interface HeaderProps {
@@ -22,11 +22,12 @@ interface HeaderProps {
 
 export function Header({ onMobileMenuToggle }: HeaderProps) {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
-  const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const { user } = useAuth();
+  const { logout } = useAuthStore();
+  const unreadCount = 0; // TODO: Implement notification count
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push('/auth/login');
   };
 
@@ -90,7 +91,7 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
               <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div className="px-4 py-2 border-b border-gray-100">
                   <p className="text-sm font-medium text-gray-900">
-                    {user?.firstName} {user?.lastName}
+                    {user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'User'} {user?.user_metadata?.last_name || ''}
                   </p>
                   <p className="text-sm text-gray-500">{user?.email}</p>
                 </div>

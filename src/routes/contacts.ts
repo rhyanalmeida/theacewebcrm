@@ -1,21 +1,11 @@
 import { Router } from 'express';
-import {
-  getContacts,
-  getContactById,
-  createContact,
-  updateContact,
-  deleteContact,
-  searchContacts,
-  getContactsByCompany,
-  getContactStats,
-  addContactTags,
-  removeContactTags
-} from '../controllers/contactController';
-import { authenticate } from '../middleware/auth';
+import { SupabaseContactController } from '../controllers/supabaseContactController';
+import { authenticate } from '../middleware/supabaseAuth';
 import { validate, validateQuery, validateParams } from '../middleware/validation';
 import { contactSchemas, commonSchemas } from '../middleware/validation';
 
 const router = Router();
+const contactController = new SupabaseContactController();
 
 // All routes require authentication
 router.use(authenticate);
@@ -31,7 +21,7 @@ router.get(
     ...commonSchemas.pagination,
     ...commonSchemas.filters
   }.describe('Get contacts with pagination and filtering')),
-  getContacts
+  contactController.getContacts.bind(contactController)
 );
 
 /**
@@ -41,7 +31,7 @@ router.get(
  */
 router.get(
   '/stats',
-  getContactStats
+  contactController.getContactStats.bind(contactController)
 );
 
 /**
@@ -55,7 +45,7 @@ router.get(
     q: commonSchemas.filters.keys.search.required(),
     limit: commonSchemas.pagination.keys.limit
   }),
-  searchContacts
+  contactController.searchContacts.bind(contactController)
 );
 
 /**
@@ -68,7 +58,7 @@ router.get(
   validateParams({
     company: require('joi').string().min(1).max(100).required()
   }),
-  getContactsByCompany
+  contactController.getContacts.bind(contactController)
 );
 
 /**
@@ -79,7 +69,7 @@ router.get(
 router.post(
   '/',
   validate(contactSchemas.create),
-  createContact
+  contactController.createContact.bind(contactController)
 );
 
 /**
@@ -92,7 +82,7 @@ router.get(
   validateParams({
     id: commonSchemas.objectId.required()
   }),
-  getContactById
+  contactController.getContact.bind(contactController)
 );
 
 /**
@@ -106,7 +96,7 @@ router.put(
     id: commonSchemas.objectId.required()
   }),
   validate(contactSchemas.update),
-  updateContact
+  contactController.updateContact.bind(contactController)
 );
 
 /**
@@ -119,7 +109,7 @@ router.delete(
   validateParams({
     id: commonSchemas.objectId.required()
   }),
-  deleteContact
+  contactController.deleteContact.bind(contactController)
 );
 
 /**
@@ -128,14 +118,14 @@ router.delete(
  * @access  Private
  */
 router.post(
-  '/:id/tags',
+  '/:id/bulk',
   validateParams({
     id: commonSchemas.objectId.required()
   }),
   validate({
-    tags: require('joi').array().items(require('joi').string().trim()).min(1).required()
+    contacts: require('joi').array().items(require('joi').object()).min(1).required()
   }),
-  addContactTags
+  contactController.bulkCreateContacts.bind(contactController)
 );
 
 /**
@@ -144,14 +134,11 @@ router.post(
  * @access  Private
  */
 router.delete(
-  '/:id/tags',
-  validateParams({
-    id: commonSchemas.objectId.required()
-  }),
+  '/bulk',
   validate({
-    tags: require('joi').array().items(require('joi').string().trim()).min(1).required()
+    ids: require('joi').array().items(require('joi').string()).min(1).required()
   }),
-  removeContactTags
+  contactController.bulkDeleteContacts.bind(contactController)
 );
 
 export default router;

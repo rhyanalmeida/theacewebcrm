@@ -1,16 +1,15 @@
 import { Router } from 'express';
 import {
   getLeads,
-  getLeadById,
+  getLead,
   createLead,
   updateLead,
   deleteLead,
   convertLead,
-  getLeadsByStatus,
   getLeadStats,
-  searchLeads
-} from '../controllers/leadController';
-import { authenticate } from '../middleware/auth';
+  assignLead
+} from '../controllers/supabaseLeadController';
+import { authenticate } from '../middleware/supabaseAuth';
 import { validate, validateQuery, validateParams } from '../middleware/validation';
 import { leadSchemas, commonSchemas } from '../middleware/validation';
 import { LeadStatus } from '../types';
@@ -55,7 +54,7 @@ router.get(
     q: commonSchemas.filters.keys.search.required(),
     limit: commonSchemas.pagination.keys.limit
   }),
-  searchLeads
+  getLeads
 );
 
 /**
@@ -68,7 +67,7 @@ router.get(
   validateParams({
     status: require('joi').string().valid(...Object.values(LeadStatus)).required()
   }),
-  getLeadsByStatus
+  getLeads
 );
 
 /**
@@ -92,7 +91,7 @@ router.get(
   validateParams({
     id: commonSchemas.objectId.required()
   }),
-  getLeadById
+  getLead
 );
 
 /**

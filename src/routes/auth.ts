@@ -10,8 +10,8 @@ import {
   requestPasswordReset,
   resetPassword,
   validateToken
-} from '../controllers/authController';
-import { authenticate, authRateLimit, logAuthEvent } from '../middleware/auth';
+} from '../controllers/supabaseAuthController';
+import { authenticate, authRateLimit, logAuthEvent } from '../middleware/supabaseAuth';
 import { validate } from '../middleware/validation';
 import { userSchemas } from '../middleware/validation';
 
