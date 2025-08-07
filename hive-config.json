@@ -1,0 +1,71 @@
+{
+  "swarm": {
+    "name": "ACE-CRM-HIVE",
+    "version": "1.0.0",
+    "queen": {
+      "role": "orchestrator",
+      "responsibilities": ["deployment", "monitoring", "scaling", "healing"]
+    },
+    "workers": [
+      {
+        "id": "backend-worker",
+        "type": "api-service",
+        "service": "ace-crm-backend",
+        "url": "https://ace-crm-backend.onrender.com",
+        "health": "/api/health",
+        "priority": 1
+      },
+      {
+        "id": "frontend-worker",
+        "type": "dashboard-service",
+        "service": "ace-crm-frontend",
+        "url": "https://ace-crm-frontend.onrender.com",
+        "health": "/api/health",
+        "priority": 2
+      },
+      {
+        "id": "portal-worker",
+        "type": "client-service",
+        "service": "ace-crm-portal",
+        "url": "https://ace-crm-portal.onrender.com",
+        "health": "/",
+        "priority": 3
+      },
+      {
+        "id": "database-worker",
+        "type": "data-service",
+        "service": "supabase",
+        "url": "https://hxcrjwrinexiyeyyyhfa.supabase.co",
+        "priority": 1
+      },
+      {
+        "id": "payment-worker",
+        "type": "payment-service",
+        "service": "stripe",
+        "priority": 2
+      }
+    ],
+    "deployment": {
+      "platform": "render",
+      "region": "oregon",
+      "plan": "starter",
+      "autoDeploy": true,
+      "autoScale": true,
+      "healthCheckInterval": 30000
+    },
+    "environment": {
+      "NODE_ENV": "production",
+      "API_VERSION": "v1",
+      "ENABLE_MONITORING": true,
+      "ENABLE_LOGGING": true,
+      "ENABLE_CACHING": true
+    },
+    "intelligence": {
+      "autoHeal": true,
+      "loadBalancing": true,
+      "failoverEnabled": true,
+      "redundancy": 2,
+      "consensusProtocol": "raft"
+    }
+  }
+}
