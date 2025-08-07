@@ -5,7 +5,7 @@ import { logger } from '../config/logger';
 export class SupabaseContactController {
   
   // Get all contacts with pagination and filters
-  async getContacts(req: Request, res: Response) {
+  async getContacts(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 50;
@@ -78,7 +78,7 @@ export class SupabaseContactController {
   }
 
   // Get single contact by ID
-  async getContact(req: Request, res: Response) {
+  async getContact(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
 
@@ -123,7 +123,7 @@ export class SupabaseContactController {
   }
 
   // Create new contact
-  async createContact(req: Request, res: Response) {
+  async createContact(req: Request, res: Response): Promise<void> {
     try {
       const contactData = req.body;
       const userId = req.user?.id;
@@ -179,7 +179,7 @@ export class SupabaseContactController {
   }
 
   // Update contact
-  async updateContact(req: Request, res: Response) {
+  async updateContact(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const updates = req.body;
@@ -222,7 +222,7 @@ export class SupabaseContactController {
   }
 
   // Delete contact
-  async deleteContact(req: Request, res: Response) {
+  async deleteContact(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
 
@@ -257,7 +257,7 @@ export class SupabaseContactController {
   }
 
   // Bulk operations
-  async bulkCreateContacts(req: Request, res: Response) {
+  async bulkCreateContacts(req: Request, res: Response): Promise<void> {
     try {
       const { contacts } = req.body;
       const userId = req.user?.id;
@@ -317,7 +317,7 @@ export class SupabaseContactController {
     }
   }
 
-  async bulkDeleteContacts(req: Request, res: Response) {
+  async bulkDeleteContacts(req: Request, res: Response): Promise<void> {
     try {
       const { ids } = req.body;
 
@@ -359,7 +359,7 @@ export class SupabaseContactController {
   }
 
   // Search contacts
-  async searchContacts(req: Request, res: Response) {
+  async searchContacts(req: Request, res: Response): Promise<void> {
     try {
       const { q: query } = req.query;
       const limit = parseInt(req.query.limit as string) || 20;
@@ -407,7 +407,7 @@ export class SupabaseContactController {
   }
 
   // Get contact statistics
-  async getContactStats(req: Request, res: Response) {
+  async getContactStats(req: Request, res: Response): Promise<void> {
     try {
       const [totalResult, statusResult, sourceResult, recentResult] = await Promise.all([
         // Total count
@@ -476,7 +476,7 @@ export class SupabaseContactController {
   }
 
   // Export contacts
-  async exportContacts(req: Request, res: Response) {
+  async exportContacts(req: Request, res: Response): Promise<void> {
     try {
       const search = req.query.search as string;
       const status = req.query.status as string;

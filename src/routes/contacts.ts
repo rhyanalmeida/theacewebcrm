@@ -3,6 +3,7 @@ import { SupabaseContactController } from '../controllers/supabaseContactControl
 import { authenticate } from '../middleware/supabaseAuth';
 import { validate, validateQuery, validateParams } from '../middleware/validation';
 import { contactSchemas, commonSchemas } from '../middleware/validation';
+import Joi from 'joi';
 
 const router = Router();
 const contactController = new SupabaseContactController();
@@ -17,10 +18,7 @@ router.use(authenticate);
  */
 router.get(
   '/',
-  validateQuery({
-    ...commonSchemas.pagination,
-    ...commonSchemas.filters
-  }.describe('Get contacts with pagination and filtering')),
+  validateQuery(commonSchemas.pagination.concat(commonSchemas.filters)),
   contactController.getContacts.bind(contactController)
 );
 
@@ -41,10 +39,10 @@ router.get(
  */
 router.get(
   '/search',
-  validateQuery({
-    q: commonSchemas.filters.keys.search.required(),
-    limit: commonSchemas.pagination.keys.limit
-  }),
+  validateQuery(Joi.object({
+    q: Joi.string().required(),
+    limit: Joi.number().integer().min(1).max(100).default(20)
+  })),
   contactController.searchContacts.bind(contactController)
 );
 
@@ -55,9 +53,9 @@ router.get(
  */
 router.get(
   '/company/:company',
-  validateParams({
-    company: require('joi').string().min(1).max(100).required()
-  }),
+  validateParams(Joi.object({
+    company: Joi.string().min(1).max(100).required()
+  })),
   contactController.getContacts.bind(contactController)
 );
 
@@ -79,9 +77,9 @@ router.post(
  */
 router.get(
   '/:id',
-  validateParams({
+  validateParams(Joi.object({
     id: commonSchemas.objectId.required()
-  }),
+  })),
   contactController.getContact.bind(contactController)
 );
 
@@ -92,9 +90,9 @@ router.get(
  */
 router.put(
   '/:id',
-  validateParams({
+  validateParams(Joi.object({
     id: commonSchemas.objectId.required()
-  }),
+  })),
   validate(contactSchemas.update),
   contactController.updateContact.bind(contactController)
 );
@@ -106,9 +104,9 @@ router.put(
  */
 router.delete(
   '/:id',
-  validateParams({
+  validateParams(Joi.object({
     id: commonSchemas.objectId.required()
-  }),
+  })),
   contactController.deleteContact.bind(contactController)
 );
 
@@ -118,13 +116,10 @@ router.delete(
  * @access  Private
  */
 router.post(
-  '/:id/bulk',
-  validateParams({
-    id: commonSchemas.objectId.required()
-  }),
-  validate({
-    contacts: require('joi').array().items(require('joi').object()).min(1).required()
-  }),
+  '/bulk',
+  validate(Joi.object({
+    contacts: Joi.array().items(Joi.object()).min(1).required()
+  })),
   contactController.bulkCreateContacts.bind(contactController)
 );
 
@@ -135,9 +130,9 @@ router.post(
  */
 router.delete(
   '/bulk',
-  validate({
-    ids: require('joi').array().items(require('joi').string()).min(1).required()
-  }),
+  validate(Joi.object({
+    ids: Joi.array().items(Joi.string()).min(1).required()
+  })),
   contactController.bulkDeleteContacts.bind(contactController)
 );
 

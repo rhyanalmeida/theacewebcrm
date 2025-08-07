@@ -461,5 +461,4 @@ export const supabase = SupabaseConfig.getClient();
 export const supabaseAdmin = SupabaseConfig.getAdminClient();
 export const testConnection = SupabaseConfig.testConnection;
 export const healthCheck = SupabaseConfig.healthCheck;
-export { Database };
 export default SupabaseConfig;

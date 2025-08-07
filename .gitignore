@@ -121,4 +121,10 @@ Thumbs.db
 # - Stripe Secret Key
 # - Database credentials  
 # - API tokens
-# Always use environment variables in production!
+# Always use environment variables in production!.env
+src/.env
+frontend/.env.local
+client-portal/.env.local
+*.env
+*.env.local
+.env.*

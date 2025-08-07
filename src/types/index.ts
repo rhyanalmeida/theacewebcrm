@@ -1,5 +1,5 @@
-import { Document } from 'mongoose';
 import { Request } from 'express';
+import { Database } from '../config/supabase';
 
 // User roles enum
 export enum UserRole {
@@ -40,7 +40,7 @@ export enum ProjectStatus {
 }
 
 // Base interfaces
-export interface IUser extends Document {
+export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
@@ -57,7 +57,7 @@ export interface IUser extends Document {
   updatedAt: Date;
 }
 
-export interface IContact extends Document {
+export interface IContact {
   firstName: string;
   lastName: string;
   email: string;
@@ -80,7 +80,7 @@ export interface IContact extends Document {
   updatedAt: Date;
 }
 
-export interface ILead extends Document {
+export interface ILead {
   firstName: string;
   lastName: string;
   email: string;
@@ -99,7 +99,7 @@ export interface ILead extends Document {
   updatedAt: Date;
 }
 
-export interface IDeal extends Document {
+export interface IDeal {
   title: string;
   description?: string;
   value: number;
@@ -118,7 +118,7 @@ export interface IDeal extends Document {
   updatedAt: Date;
 }
 
-export interface ICompany extends Document {
+export interface ICompany {
   name: string;
   description?: string;
   website?: string;
@@ -142,7 +142,7 @@ export interface ICompany extends Document {
   updatedAt: Date;
 }
 
-export interface IProject extends Document {
+export interface IProject {
   name: string;
   description?: string;
   status: ProjectStatus;

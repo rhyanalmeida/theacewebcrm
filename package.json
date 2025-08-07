@@ -29,7 +29,9 @@
     "restore": "node scripts/restore-hive-state.js",
     "performance": "node scripts/performance-analysis.js",
     "cost-analysis": "node scripts/cost-analysis.js",
-    "security-scan": "node scripts/security-scan.js"
+    "security-scan": "node scripts/security-scan.js",
+    "validate:env": "node scripts/validate-environment.js",
+    "setup:env": "node scripts/validate-environment.js"
   },
   "keywords": [
     "crm",

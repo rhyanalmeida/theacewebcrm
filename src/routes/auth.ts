@@ -14,6 +14,7 @@ import {
 import { authenticate, authRateLimit, logAuthEvent } from '../middleware/supabaseAuth';
 import { validate } from '../middleware/validation';
 import { userSchemas } from '../middleware/validation';
+import Joi from 'joi';
 
 const router = Router();
 
@@ -50,9 +51,9 @@ router.post(
  */
 router.post(
   '/refresh',
-  validate({
-    refreshToken: userSchemas.login.keys.password // Reuse password validation for token
-  }),
+  validate(Joi.object({
+    refreshToken: Joi.string().required()
+  })),
   refreshToken
 );
 
@@ -127,10 +128,10 @@ router.post(
   '/reset-password',
   authRateLimit(60 * 60 * 1000, 5), // 5 attempts per hour
   logAuthEvent('password_reset_attempt'),
-  validate({
-    token: userSchemas.login.keys.password, // Reuse for token validation
-    password: userSchemas.changePassword.keys.newPassword
-  }),
+  validate(Joi.object({
+    token: Joi.string().required(),
+    password: Joi.string().min(8).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/).required()
+  })),
   resetPassword
 );
 
@@ -141,9 +142,9 @@ router.post(
  */
 router.post(
   '/validate-token',
-  validate({
-    token: userSchemas.login.keys.password // Reuse for token validation
-  }),
+  validate(Joi.object({
+    token: Joi.string().required()
+  })),
   validateToken
 );
 
