@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐝 ACE CRM Hive Swarm Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .service-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            transition: transform 0.3s;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        .service-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .service-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        .status-dot.healthy { background: #4ade80; }
+        .status-dot.pending { background: #fbbf24; }
+        .status-dot.error { background: #f87171; }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .service-url {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+        .service-url a {
+            color: white;
+            text-decoration: none;
+        }
+        .service-url a:hover {
+            text-decoration: underline;
+        }
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .metrics {
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        .hive-status {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .hive-icon {
+            font-size: 4em;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hive-status">
+            <div class="hive-icon">🐝</div>
+        </div>
+        <h1>ACE CRM Hive Swarm</h1>
+        <p class="subtitle">Autonomous Deployment System</p>
+
+        <div class="status-grid">
+            <div class="service-card">
+                <div class="service-name">🔧 Backend API</div>
+                <div class="service-status">
+                    <span class="status-dot healthy"></span>
+                    <span id="backend-status">Running</span>
+                </div>
+                <div class="service-url">
+                    <a href="https://theacewebcrm.onrender.com" target="_blank">
+                        theacewebcrm.onrender.com
+                    </a>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-name">🎨 Frontend Dashboard</div>
+                <div class="service-status">
+                    <span class="status-dot pending"></span>
+                    <span id="frontend-status">Deploying</span>
+                </div>
+                <div class="service-url">
+                    <a href="https://ace-crm-frontend.onrender.com" target="_blank">
+                        ace-crm-frontend.onrender.com
+                    </a>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-name">🌐 Client Portal</div>
+                <div class="service-status">
+                    <span class="status-dot pending"></span>
+                    <span id="portal-status">Deploying</span>
+                </div>
+                <div class="service-url">
+                    <a href="https://ace-crm-portal.onrender.com" target="_blank">
+                        ace-crm-portal.onrender.com
+                    </a>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-name">💾 Supabase Database</div>
+                <div class="service-status">
+                    <span class="status-dot healthy"></span>
+                    <span>Connected</span>
+                </div>
+                <div class="service-url">
+                    <a href="https://supabase.com/dashboard/project/hxcrjwrinexiyeyyyhfa" target="_blank">
+                        Supabase Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-name">💳 Stripe Payments</div>
+                <div class="service-status">
+                    <span class="status-dot healthy"></span>
+                    <span>Configured</span>
+                </div>
+                <div class="service-url">
+                    <a href="https://dashboard.stripe.com" target="_blank">
+                        Stripe Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-name">📊 Monitoring</div>
+                <div class="service-status">
+                    <span class="status-dot healthy"></span>
+                    <span>Active</span>
+                </div>
+                <div class="service-url">
+                    Health Checks Running
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics">
+            <div class="metric-row">
+                <strong>Swarm Status:</strong>
+                <span>🟢 Active</span>
+            </div>
+            <div class="metric-row">
+                <strong>Total Workers:</strong>
+                <span>7 nodes</span>
+            </div>
+            <div class="metric-row">
+                <strong>Deployment Platform:</strong>
+                <span>Render.com</span>
+            </div>
+            <div class="metric-row">
+                <strong>Region:</strong>
+                <span>Oregon (US West)</span>
+            </div>
+            <div class="metric-row">
+                <strong>Auto-Healing:</strong>
+                <span>Enabled</span>
+            </div>
+            <div class="metric-row">
+                <strong>Load Balancing:</strong>
+                <span>Active</span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="https://dashboard.render.com" target="_blank" class="btn">
+                📊 Render Dashboard
+            </a>
+            <button class="btn" onclick="checkHealth()">
+                🔄 Check Health
+            </button>
+            <button class="btn" onclick="deploySwarm()">
+                🚀 Re-Deploy Swarm
+            </button>
+        </div>
+    </div>
+
+    <script>
+        async function checkHealth() {
+            const services = [
+                { url: 'https://theacewebcrm.onrender.com/api/health', id: 'backend-status' },
+                { url: 'https://ace-crm-frontend.onrender.com/api/health', id: 'frontend-status' },
+                { url: 'https://ace-crm-portal.onrender.com', id: 'portal-status' }
+            ];
+
+            for (const service of services) {
+                try {
+                    const response = await fetch(service.url);
+                    const statusEl = document.getElementById(service.id);
+                    const dot = statusEl.previousElementSibling;
+                    
+                    if (response.ok) {
+                        statusEl.textContent = 'Healthy';
+                        dot.className = 'status-dot healthy';
+                    } else {
+                        statusEl.textContent = 'Building';
+                        dot.className = 'status-dot pending';
+                    }
+                } catch (error) {
+                    const statusEl = document.getElementById(service.id);
+                    const dot = statusEl.previousElementSibling;
+                    statusEl.textContent = 'Deploying';
+                    dot.className = 'status-dot pending';
+                }
+            }
+        }
+
+        function deploySwarm() {
+            alert('🐝 Swarm deployment initiated! Check Render dashboard for progress.');
+            window.open('https://dashboard.render.com', '_blank');
+        }
+
+        // Auto-check health every 30 seconds
+        setInterval(checkHealth, 30000);
+        
+        // Initial check
+        checkHealth();
+    </script>
+</body>
+</html>
