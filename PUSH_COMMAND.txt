@@ -1,0 +1,24 @@
+DIRECT PUSH COMMANDS - RUN THESE:
+
+Step 1: Get your GitHub token
+----------------------------- 
+Go to: https://github.com/settings/tokens/new
+- Token name: ACE CRM
+- Expiration: 30 days  
+- Scopes: ✅ repo (check this box)
+- Click: Generate token
+- COPY THE TOKEN (starts with ghp_)
+
+Step 2: Run this command (replace YOUR_TOKEN_HERE with your actual token)
+--------------------------------------------------------------------------
+cd "/mnt/c/Users/rhyan/Downloads/THE ACE CRM" && git remote set-url origin https://rhyanalmeida:YOUR_TOKEN_HERE@github.com/rhyanalmeida/theacewebcrm.git && git push -u origin main && git remote set-url origin https://github.com/rhyanalmeida/theacewebcrm.git
+
+Example (with fake token):
+cd "/mnt/c/Users/rhyan/Downloads/THE ACE CRM" && git remote set-url origin https://rhyanalmeida:ghp_abcd1234efgh5678@github.com/rhyanalmeida/theacewebcrm.git && git push -u origin main && git remote set-url origin https://github.com/rhyanalmeida/theacewebcrm.git
+
+This single command will:
+1. Set authenticated URL
+2. Push all 417 files
+3. Reset URL for security
+
+Your repository: https://github.com/rhyanalmeida/theacewebcrm

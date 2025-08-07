@@ -1,0 +1,96 @@
+# Render Blueprint for ACE CRM
+# This file defines all services for deployment on Render
+
+services:
+  # Backend API Service
+  - type: web
+    name: ace-crm-backend
+    runtime: node
+    repo: https://github.com/rhyanalmeida/theacewebcrm
+    branch: main
+    rootDir: .
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: SUPABASE_URL
+        value: https://hxcrjwrinexiyeyyyhfa.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false # Add in Render dashboard
+      - key: SUPABASE_SERVICE_KEY
+        sync: false # Add in Render dashboard
+      - key: STRIPE_SECRET_KEY
+        sync: false # Add in Render dashboard
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false # Add in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true # Auto-generate secure key
+      - key: JWT_REFRESH_SECRET
+        generateValue: true # Auto-generate secure key
+      - key: SESSION_SECRET
+        generateValue: true # Auto-generate secure key
+      - key: CORS_ORIGIN
+        value: https://ace-crm-frontend.onrender.com,https://ace-crm-portal.onrender.com
+    healthCheckPath: /api/health
+    plan: starter # Change to 'standard' for production
+
+  # Frontend Dashboard Service
+  - type: web
+    name: ace-crm-frontend
+    runtime: node
+    repo: https://github.com/rhyanalmeida/theacewebcrm
+    branch: main
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://ace-crm-backend.onrender.com/api
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://ace-crm-frontend.onrender.com
+      - key: NEXT_PUBLIC_CLIENT_PORTAL_URL
+        value: https://ace-crm-portal.onrender.com
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://hxcrjwrinexiyeyyyhfa.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4Y3Jqd3JpbmV4aXlleXl5aGZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MDcyMTQsImV4cCI6MjA3MDA4MzIxNH0.UgHQzFICQqj5AAJty3PXqsEqL9s2NPRXyxIss1515M4
+      - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        sync: false # Add in Render dashboard
+    healthCheckPath: /api/health
+    plan: starter
+
+  # Client Portal Service
+  - type: web
+    name: ace-crm-portal
+    runtime: node
+    repo: https://github.com/rhyanalmeida/theacewebcrm
+    branch: main
+    rootDir: client-portal
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://ace-crm-backend.onrender.com/api
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://ace-crm-portal.onrender.com
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://hxcrjwrinexiyeyyyhfa.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4Y3Jqd3JpbmV4aXlleXl5aGZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MDcyMTQsImV4cCI6MjA3MDA4MzIxNH0.UgHQzFICQqj5AAJty3PXqsEqL9s2NPRXyxIss1515M4
+      - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        sync: false # Add in Render dashboard
+    healthCheckPath: /
+    plan: starter
+
+# Optional: Add a Redis instance for caching
+# databases:
+#   - name: ace-crm-redis
+#     databaseName: ace-crm-cache
+#     plan: starter

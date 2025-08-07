@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{notificationType}} - ACE CRM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f8f9fa;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header.info {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        }
+        
+        .header.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        .header.warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+        
+        .header.error {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+        
+        .header.urgent {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        }
+        
+        .notification-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #4a5568;
+        }
+        
+        .notification-details {
+            background-color: #f7fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .notification-details h3 {
+            color: #2d3748;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .notification-details h3::before {
+            content: "📋";
+            margin-right: 8px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #4a5568;
+            min-width: 120px;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            color: #2d3748;
+            font-size: 14px;
+            text-align: right;
+            flex: 1;
+            word-break: break-word;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .priority-low {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .priority-medium {
+            background-color: #feebc8;
+            color: #744210;
+        }
+        
+        .priority-high {
+            background-color: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .priority-urgent {
+            background-color: #fed7d7;
+            color: #742a2a;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .action-required {
+            background-color: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .action-required h4 {
+            color: #234e52;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .action-required h4::before {
+            content: "⚡";
+            margin-right: 8px;
+        }
+        
+        .action-required p {
+            color: #285e61;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .action-required ul {
+            color: #285e61;
+            font-size: 14px;
+            margin-left: 20px;
+        }
+        
+        .action-required li {
+            margin-bottom: 5px;
+        }
+        
+        .cta-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.2s ease;
+            margin: 5px 10px;
+        }
+        
+        .cta-button.primary {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        }
+        
+        .cta-button.secondary {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+        }
+        
+        .cta-button.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        .cta-button.warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+        
+        .cta-button.danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-1px);
+        }
+        
+        .timeline {
+            margin: 25px 0;
+        }
+        
+        .timeline h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: 8px;
+            top: 6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4299e1;
+        }
+        
+        .timeline-item::after {
+            content: "";
+            position: absolute;
+            left: 11px;
+            top: 18px;
+            width: 2px;
+            height: calc(100% + 5px);
+            background-color: #e2e8f0;
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-time {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-text {
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .related-items {
+            background-color: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .related-items h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .related-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .related-item:last-child {
+            border-bottom: none;
+        }
+        
+        .related-item-name {
+            font-size: 14px;
+            color: #2d3748;
+            text-decoration: none;
+        }
+        
+        .related-item-name:hover {
+            color: #4299e1;
+        }
+        
+        .related-item-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .footer {
+            background-color: #2d3748;
+            color: #a0aec0;
+            padding: 25px 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .footer p {
+            margin-bottom: 10px;
+        }
+        
+        .footer a {
+            color: #4299e1;
+            text-decoration: none;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .header {
+                padding: 25px 20px;
+            }
+            
+            .notification-details {
+                padding: 20px;
+            }
+            
+            .detail-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .detail-value {
+                text-align: left;
+                margin-top: 5px;
+            }
+            
+            .cta-button {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header {{notificationClass}}">
+            <span class="notification-icon">{{notificationIcon}}</span>
+            <h1>{{notificationTitle}}</h1>
+            <p>{{notificationSubtitle}}</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Hello {{firstName}},
+            </div>
+            
+            <div class="message">
+                {{message}}
+            </div>
+            
+            {{#if details}}
+            <div class="notification-details">
+                <h3>Details</h3>
+                {{#each details}}
+                <div class="detail-item">
+                    <div class="detail-label">{{label}}:</div>
+                    <div class="detail-value">
+                        {{#if isPriority}}
+                            <span class="priority-badge priority-{{toLowerCase value}}">{{value}}</span>
+                        {{else}}
+                            {{value}}
+                        {{/if}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+            
+            {{#if actionRequired}}
+            <div class="action-required">
+                <h4>Action Required</h4>
+                <p>{{actionRequired.description}}</p>
+                {{#if actionRequired.steps}}
+                <ul>
+                    {{#each actionRequired.steps}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+                {{/if}}
+            </div>
+            {{/if}}
+            
+            {{#if timeline}}
+            <div class="timeline">
+                <h4>📅 Timeline</h4>
+                {{#each timeline}}
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-time">{{time}}</div>
+                        <div class="timeline-text">{{text}}</div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+            
+            {{#if relatedItems}}
+            <div class="related-items">
+                <h4>Related Items</h4>
+                {{#each relatedItems}}
+                <div class="related-item">
+                    <a href="{{url}}" class="related-item-name">{{name}}</a>
+                    <span class="related-item-status">{{status}}</span>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+            
+            {{#if actions}}
+            <div class="cta-container">
+                {{#each actions}}
+                <a href="{{url}}" class="cta-button {{class}}">{{text}}</a>
+                {{/each}}
+            </div>
+            {{/if}}
+            
+            {{#if additionalInfo}}
+            <div style="background-color: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p style="color: #4a5568; font-size: 14px; margin: 0;">
+                    {{additionalInfo}}
+                </p>
+            </div>
+            {{/if}}
+        </div>
+        
+        <div class="footer">
+            <p><strong>ACE CRM Notifications</strong></p>
+            <p>{{companyAddress}}</p>
+            
+            <p style="margin-top: 20px;">
+                You received this notification because you're subscribed to {{notificationType}} alerts.<br>
+                <a href="{{unsubscribeUrl}}">Unsubscribe</a> | 
+                <a href="{{preferencesUrl}}">Notification Preferences</a>
+            </p>
+            
+            <p style="margin-top: 15px; color: #718096; font-size: 12px;">
+                Notification ID: {{notificationId}}<br>
+                Sent: {{sentTime}}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

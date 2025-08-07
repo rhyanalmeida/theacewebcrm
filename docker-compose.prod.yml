@@ -1,0 +1,310 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: ./ace-crm/backend
+      dockerfile: ../../Dockerfile.backend
+      target: production
+    container_name: ace-crm-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - LOG_LEVEL=info
+    env_file:
+      - .env.production
+    volumes:
+      - backend_logs:/app/logs
+      - backend_uploads:/app/uploads
+    networks:
+      - ace-crm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Frontend Dashboard Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+      target: production
+    container_name: ace-crm-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_TELEMETRY_DISABLED=1
+    env_file:
+      - .env.production
+    volumes:
+      - frontend_logs:/app/logs
+    networks:
+      - ace-crm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 384M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Client Portal Service
+  client-portal:
+    build:
+      context: ./client-portal
+      dockerfile: ../Dockerfile.client-portal
+      target: production
+    container_name: ace-crm-client-portal
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - NEXT_TELEMETRY_DISABLED=1
+    env_file:
+      - .env.production
+    volumes:
+      - client_portal_logs:/app/logs
+      - client_portal_uploads:/app/uploads
+    networks:
+      - ace-crm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 384M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cache Service
+  redis:
+    image: redis:7-alpine
+    container_name: ace-crm-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ace-crm-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ace-crm-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - ace-crm-network
+    depends_on:
+      - backend
+      - frontend
+      - client-portal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+
+  # Log Management (Optional)
+  log-rotator:
+    image: alpine:latest
+    container_name: ace-crm-log-rotator
+    restart: unless-stopped
+    command: |
+      sh -c "
+        while true; do
+          echo 'Rotating logs...'
+          find /logs -name '*.log' -size +100M -exec sh -c 'gzip {} && mv {}.gz {}.$(date +%Y%m%d_%H%M%S).gz' \;
+          find /logs -name '*.gz' -mtime +30 -delete
+          sleep 3600
+        done
+      "
+    volumes:
+      - backend_logs:/logs/backend
+      - frontend_logs:/logs/frontend
+      - client_portal_logs:/logs/client-portal
+      - nginx_logs:/logs/nginx
+    networks:
+      - ace-crm-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 32M
+
+  # Health Check Monitor
+  healthcheck-monitor:
+    image: curlimages/curl:latest
+    container_name: ace-crm-healthcheck
+    restart: unless-stopped
+    command: |
+      sh -c "
+        while true; do
+          echo '=== Health Check Report $(date) ==='
+          echo 'Backend API:'
+          curl -s http://backend:5000/api/health | jq -r '.status // \"unhealthy\"' || echo 'failed'
+          echo 'Frontend:'
+          curl -s http://frontend:3000/api/health | jq -r '.status // \"unhealthy\"' || echo 'failed'
+          echo 'Client Portal:'
+          curl -s http://client-portal:3001/api/health | jq -r '.status // \"unhealthy\"' || echo 'failed'
+          echo 'Redis:'
+          nc -z redis 6379 && echo 'healthy' || echo 'unhealthy'
+          echo '=========================='
+          sleep 300
+        done
+      "
+    networks:
+      - ace-crm-network
+    depends_on:
+      - backend
+      - frontend
+      - client-portal
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 32M
+
+# Named volumes for persistent data
+volumes:
+  backend_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/ace-crm/backend
+  
+  frontend_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/ace-crm/frontend
+  
+  client_portal_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/ace-crm/client-portal
+  
+  nginx_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/ace-crm/nginx
+  
+  backend_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/ace-crm/uploads
+  
+  client_portal_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/ace-crm/client-uploads
+  
+  redis_data:
+    driver: local
+
+# Network for service communication
+networks:
+  ace-crm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

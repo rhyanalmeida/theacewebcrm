@@ -1,0 +1,160 @@
+{
+  "name": "ACE CRM - Customer Relationship Management",
+  "short_name": "ACE CRM",
+  "description": "A comprehensive CRM solution for managing leads, contacts, and deals",
+  "lang": "en",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1d4ed8",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["business", "productivity", "finance"],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-screenshot.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop view of ACE CRM dashboard"
+    },
+    {
+      "src": "/screenshots/mobile-screenshot.png", 
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view of ACE CRM dashboard"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Lead",
+      "short_name": "Add Lead",
+      "description": "Create a new lead",
+      "url": "/leads/new",
+      "icons": [
+        {
+          "src": "/icons/shortcut-lead.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "short_name": "Contacts",
+      "description": "View all contacts",
+      "url": "/contacts",
+      "icons": [
+        {
+          "src": "/icons/shortcut-contacts.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View dashboard analytics",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/shortcut-dashboard.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": ["image/*", "text/*", "application/pdf"]
+        }
+      ]
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/import-contacts",
+      "accept": {
+        "text/csv": [".csv"],
+        "application/vnd.ms-excel": [".xls", ".xlsx"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "mailto",
+      "url": "/compose?to=%s"
+    },
+    {
+      "protocol": "tel",
+      "url": "/contacts/call?number=%s"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}
